@@ -1,0 +1,25 @@
+{
+  "name": "offscreen-webgl-voroni",
+  "version": "1.0.0",
+  "description": "Utility for efficiently rendering voroni approximations using WebGL",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minimumcut/offscreen-webgl-voroni.git"
+  },
+  "keywords": [
+    "WebGL",
+    "Voroni",
+    "Computer",
+    "Graphics"
+  ],
+  "author": "Ryan Annis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/minimumcut/offscreen-webgl-voroni/issues"
+  },
+  "homepage": "https://github.com/minimumcut/offscreen-webgl-voroni#readme"
+}
