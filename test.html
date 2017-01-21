@@ -3,10 +3,12 @@
 <head>
 </head>
 <body>
+    <canvas id="lol">
     <script src="dist/bundle.js"></script>
     <script>
-        const voroni = new VoroniRenderer(500, 500);
+        const voroni = new VoroniRenderer(500, 500, document.getElementById('lol'));
         const body = document.getElementsByTagName("BODY")[0];
+        voroni.tick();
         body.appendChild(voroni.getCanvasDOMNode());
         
     </script>
