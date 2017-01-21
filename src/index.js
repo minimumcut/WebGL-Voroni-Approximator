@@ -23,7 +23,12 @@ const voroniFragmentShader = `
  * Utility for generating offscreen Voroni Diagrams
  */
 class VoroniRenderer{
-    constructor(width, height, coneResolution, debug){
+    /**
+     * @param {Number} width
+     * @param {Number} height
+     * @param {Number} coneResolution
+     */
+    constructor(width, height, coneResolution = 100, debug){
         this.width = width;
         this.height = height;
         this.coneResolution = coneResolution;
@@ -155,8 +160,6 @@ class VoroniRenderer{
         this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(coneVertices), this.gl.STATIC_DRAW);
     }
 
-
-
     /**
      * Inserts needed matrices into uniforms
      */
@@ -177,6 +180,7 @@ class VoroniRenderer{
             this.render();
         }
     }
+    
     /**
      * Sets the VertexColor uniform to a random value
      */
