@@ -53,6 +53,10 @@
 
 	'use strict';
 
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _glMatrix = __webpack_require__(2);
@@ -68,7 +72,15 @@
 	 */
 
 	var VoroniRenderer = function () {
-	    function VoroniRenderer(width, height, coneResolution, debug) {
+	    /**
+	     * @param {Number} width
+	     * @param {Number} height
+	     * @param {Number} coneResolution
+	     */
+	    function VoroniRenderer(width, height) {
+	        var coneResolution = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 100;
+	        var debug = arguments[3];
+
 	        _classCallCheck(this, VoroniRenderer);
 
 	        this.width = width;
@@ -249,6 +261,7 @@
 	                this.render();
 	            }
 	        }
+
 	        /**
 	         * Sets the VertexColor uniform to a random value
 	         */
@@ -277,8 +290,9 @@
 	            this.points.forEach(function (point) {
 	                /* Setup model view matrix for next voroni point */
 	                var modelViewMatrix = _glMatrix.mat4.create();
-	                _glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [point.x / _this2.width * 2 - 1, point.y / _this2.width * 2 - 1, 0.0]);
-	                console.log(point.x / _this2.width * 2 - 1);
+	                _glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [point.x / _this2.width * 2 - 1, -(point.y / _this2.height * 2 - 1), 0.0]);
+	                console.log('X OGL', point.x / _this2.width * 2 - 1);
+	                console.log('Y OGL', point.y / _this2.height * 2 - 1);
 	                _this2.gl.uniformMatrix4fv(_this2.glPointers.uniforms.modelViewMatrix, false, modelViewMatrix);
 
 	                _this2._randomizeColor();
@@ -324,6 +338,8 @@
 	}();
 
 	window.VoroniRenderer = VoroniRenderer;
+
+	exports.default = VoroniRenderer;
 
 /***/ },
 /* 2 */

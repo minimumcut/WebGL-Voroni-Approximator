@@ -206,9 +206,10 @@ class VoroniRenderer{
             mat4.translate(
                 modelViewMatrix,
                 modelViewMatrix,
-                [point.x/this.width*2-1, point.y/this.width*2-1, 0.0]
+                [point.x/this.width*2-1, -(point.y/this.height*2-1), 0.0]
             );
-            console.log(point.x/this.width*2-1);
+            console.log('X OGL', point.x/this.width*2-1);
+            console.log('Y OGL', point.y/this.height*2-1);
             this.gl.uniformMatrix4fv(
                 this.glPointers.uniforms.modelViewMatrix,
                 false,
@@ -245,3 +246,5 @@ class VoroniRenderer{
 }
 
 window.VoroniRenderer = VoroniRenderer;
+
+export default VoroniRenderer;
