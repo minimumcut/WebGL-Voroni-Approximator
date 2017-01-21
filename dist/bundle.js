@@ -59,18 +59,25 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	var voroniVertexShader = '\n    attribute vec3 vertexPosition;\n    attribute vec4 vertexColor;\n\n    uniform mat4 orthoMatrix;\n\n    varying vec4 vColor;\n    void main(void) {\n        gl_Position = orthoMatrix * vec4(vertexPosition, 1.0);\n        vColor = vertexColor;   \n    }\n';
+	var voroniVertexShader = '\n    attribute vec3 vertexPosition;\n\n    uniform mat4 orthoMatrix;\n    uniform mat4 modelViewMatrix;\n\n    void main(void) {\n        gl_Position = orthoMatrix * modelViewMatrix * vec4(vertexPosition, 1.0);\n    }\n';
 
-	var voroniFragmentShader = '\n    precision mediump float;\n         varying vec4 vColor;\n    void main(void) { \n        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n    }\n';
+	var voroniFragmentShader = '\n    precision mediump float;\n    uniform vec4 vertexColor;\n    void main(void) { \n        gl_FragColor =  vertexColor;\n    }\n';
+
+	/**
+	 * Utility for generating offscreen Voroni Diagrams
+	 */
 
 	var VoroniRenderer = function () {
-	    function VoroniRenderer(width, height, canvas) {
+	    function VoroniRenderer(width, height, coneResolution, debug) {
 	        _classCallCheck(this, VoroniRenderer);
 
 	        this.width = width;
 	        this.height = height;
+	        this.coneResolution = coneResolution;
+	        this.debug = debug;
+
 	        /* Init offscreen canvas */
-	        this.canvas = canvas;
+	        this.canvas = document.createElement("canvas");
 	        this.canvas.width = width;
 	        this.canvas.height = height;
 
@@ -111,7 +118,6 @@
 	        value: function _getShader(str, shaderType) {
 	            var shader = this.gl.createShader(shaderType);
 
-	            console.log(str);
 	            this.gl.shaderSource(shader, str);
 	            this.gl.compileShader(shader);
 
@@ -159,14 +165,14 @@
 	        key: '_createCone',
 	        value: function _createCone(x, y, edges) {
 	            var pi = Math.PI;
-	            var vertices = new Array(edges * 3 + 1);
+	            var vertices = new Array(edges * (3 + 2));
 	            vertices[0] = x;
 	            vertices[1] = y;
 	            vertices[2] = -3;
-	            for (var i = 1; i <= edges + 1; i++) {
+	            for (var i = 1; i <= edges + 2; i++) {
 	                var ratio = i / edges;
-	                vertices[i * 3] = Math.sin(2 * pi * ratio);
-	                vertices[i * 3 + 1] = Math.cos(2 * pi * ratio);
+	                vertices[i * 3] = 3 * (x + Math.sin(2 * pi * ratio));
+	                vertices[i * 3 + 1] = 3 * (y + Math.cos(2 * pi * ratio));
 	                vertices[i * 3 + 2] = -5;
 	            }
 	            return vertices;
@@ -181,9 +187,6 @@
 	        value: function _getAttributeLocations() {
 	            this.glPointers.attributes.vertexPosition = this.gl.getAttribLocation(this.glPointers.shaderProgram, "vertexPosition");
 	            this.gl.enableVertexAttribArray(this.glPointers.attributes.vertexPosition);
-
-	            this.glPointers.attributes.vertexColor = this.gl.getAttribLocation(this.glPointers.shaderProgram, "vertexColor");
-	            this.gl.enableVertexAttribArray(this.glPointers.attributes.vertexColor);
 	        }
 
 	        /**
@@ -194,6 +197,8 @@
 	        key: '_getUniformLocations',
 	        value: function _getUniformLocations() {
 	            this.glPointers.uniforms.orthoMatrix = this.gl.getUniformLocation(this.glPointers.shaderProgram, "orthoMatrix");
+	            this.glPointers.uniforms.modelViewMatrix = this.gl.getUniformLocation(this.glPointers.shaderProgram, "modelViewMatrix");
+	            this.glPointers.uniforms.vertexColor = this.gl.getUniformLocation(this.glPointers.shaderProgram, "vertexColor");
 	        }
 
 	        /**
@@ -204,7 +209,6 @@
 	        key: '_getBuffers',
 	        value: function _getBuffers() {
 	            this.glPointers.buffers.vertexPositionBuffer = this.gl.createBuffer();
-	            this.glPointers.buffers.vertexColorBuffer = this.gl.createBuffer();
 	        }
 
 	        /**
@@ -217,14 +221,8 @@
 
 	            /* Bind Vertex Data*/
 	            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glPointers.buffers.vertexPositionBuffer);
-	            var coneVertices = this._createCone(0, 0, 10);
-	            var triangleVertices = [0.0, 1.0, -2, -1.0, -1.0, -2, 1.0, -1.0, -2];
+	            var coneVertices = this._createCone(0, 0, this.coneResolution);
 	            this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(coneVertices), this.gl.STATIC_DRAW);
-
-	            /*Bind Vertex Color Data*/
-	            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glPointers.buffers.vertexColorBuffer);
-	            var vertexColorData = new Array(55).fill(1.0);
-	            this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(vertexColorData), this.gl.STATIC_DRAW);
 	        }
 
 	        /**
@@ -235,9 +233,7 @@
 	        key: '_bindDataToUniforms',
 	        value: function _bindDataToUniforms() {
 	            var orthoMatrix = _glMatrix.mat4.create();
-	            //mat4.ortho(orthoMatrix, -1, 1, -1, 1, 0.001, 100);  
-	            _glMatrix.mat4.perspective(orthoMatrix, 45, 1, 0.1, 100.0);
-
+	            _glMatrix.mat4.ortho(orthoMatrix, -1, 1, -1, 1, 0.001, 100);
 	            this.gl.uniformMatrix4fv(this.glPointers.uniforms.orthoMatrix, false, orthoMatrix);
 	        }
 	    }, {
@@ -245,23 +241,49 @@
 	        value: function tick() {
 	            var _this = this;
 
-	            requestAnimationFrame(function () {
-	                return _this.tick();
-	            });
-	            this.render();
+	            if (this.debug) {
+	                requestAnimationFrame(function () {
+	                    return _this.tick();
+	                });
+	                //this.coneResolution++;
+	                this.render();
+	            }
+	        }
+	        /**
+	         * Sets the VertexColor uniform to a random value
+	         */
+
+	    }, {
+	        key: '_randomizeColor',
+	        value: function _randomizeColor() {
+	            this.gl.uniform4f(this.glPointers.uniforms.vertexColor, Math.random(), Math.random(), Math.random(), 1.0);
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            var _this2 = this;
+
+	            if (this.debug) {
+	                this._bindDataToBuffers();
+	            }
+
 	            this.gl.viewport(0, 0, this.width, this.height);
 	            this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
 	            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glPointers.buffers.vertexPositionBuffer);
 	            this.gl.vertexAttribPointer(this.glPointers.attributes.vertexPosition, 3, this.gl.FLOAT, false, 0, 0);
 
-	            this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.glPointers.buffers.vertexColorBuffer);
-	            this.gl.vertexAttribPointer(this.glPointers.attributes.vertexColor, 4, this.gl.FLOAT, false, 0, 0);
-	            this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, 12);
+	            /* Draw a cone for each point*/
+	            this.points.forEach(function (point) {
+	                /* Setup model view matrix for next voroni point */
+	                var modelViewMatrix = _glMatrix.mat4.create();
+	                _glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [point.x / _this2.width * 2 - 1, point.y / _this2.width * 2 - 1, 0.0]);
+	                console.log(point.x / _this2.width * 2 - 1);
+	                _this2.gl.uniformMatrix4fv(_this2.glPointers.uniforms.modelViewMatrix, false, modelViewMatrix);
+
+	                _this2._randomizeColor();
+	                _this2.gl.drawArrays(_this2.gl.TRIANGLE_FAN, 0, _this2.coneResolution + 2);
+	            });
 	        }
 	        /**
 	         * Renders with instancing enabled, which should speed rendering up greatly especially for high 
@@ -270,7 +292,9 @@
 
 	    }, {
 	        key: 'renderInstanced',
-	        value: function renderInstanced() {}
+	        value: function renderInstanced() {
+	            //todo
+	        }
 	    }, {
 	        key: 'getCanvasDOMNode',
 	        value: function getCanvasDOMNode() {
@@ -287,7 +311,7 @@
 	    }, {
 	        key: 'addPoint',
 	        value: function addPoint(x, y) {
-	            this.points.push(x, y);
+	            this.points.push({ x: x, y: y });
 	        }
 	    }, {
 	        key: 'clearPoints',

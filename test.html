@@ -3,12 +3,21 @@
 <head>
 </head>
 <body>
-    <canvas id="lol">
     <script src="dist/bundle.js"></script>
     <script>
-        const voroni = new VoroniRenderer(500, 500, document.getElementById('lol'));
+        const voroni = new VoroniRenderer(500, 500, 200, true);
         const body = document.getElementsByTagName("BODY")[0];
-        voroni.tick();
+        voroni.addPoint(20,30);
+        voroni.addPoint(10,15);
+        voroni.addPoint(100,110);
+        voroni.addPoint(300,430);
+        voroni.addPoint(200,500);
+        voroni.addPoint(150,233);
+        voroni.addPoint(250,240);
+        voroni.addPoint(321,80);
+        voroni.addPoint(41,200);
+        voroni.addPoint(430,320);
+        voroni.render();
         body.appendChild(voroni.getCanvasDOMNode());
         
     </script>
