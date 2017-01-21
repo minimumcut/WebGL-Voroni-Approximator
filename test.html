@@ -15,14 +15,11 @@
 
         function getPosition(event)
         {
-        var x = event.x;
-        var y = event.y;
+        const x = event.x;
+        const y = event.y;
 
         x -= canvas.offsetLeft;
         y -= canvas.offsetTop;
-
-        console.log('x', x);
-        console.log('y', y);
 
         voroni.addPoint(x,y);
         voroni.render();
