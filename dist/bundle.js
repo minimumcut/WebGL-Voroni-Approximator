@@ -173,5 +173,7 @@
 	    return VoroniRenderer;
 	}();
 
+	window.VoroniRenderer = VoroniRenderer;
+
 /***/ }
 /******/ ]);

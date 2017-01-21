@@ -3,9 +3,11 @@
 <head>
 </head>
 <body>
-    <script src="dist/index.js"></script>
+    <script src="dist/bundle.js"></script>
     <script>
         const voroni = new VoroniRenderer(500, 500);
+        const body = document.getElementsByTagName("BODY")[0];
+        body.appendChild(voroni.getCanvasDOMNode());
         
     </script>
 </body>

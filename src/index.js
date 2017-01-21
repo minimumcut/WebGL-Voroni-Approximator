@@ -1,3 +1,5 @@
+import { mat4 } from 'gl-matrix';
+
 const vertexShader = `
 attribute vec3 aVertexPosition;
 attribute vec4 aVertexColor;
@@ -24,8 +26,11 @@ class VoroniRenderer{
         this.height = height;
         /* Init offscreen canvas */
         this.canvas = document.createElement("canvas"); 
+        this.canvas.width = width;
+        this.canvas.height = height;
+
         this.gl = this.canvas.getContext('webgl');
-        this.glPointers = {};
+        this.glPointers = {attributes: {}, uniforms: {}};
         this.points = [];
     }
     _initGL(){
@@ -86,10 +91,25 @@ class VoroniRenderer{
             indices[i*3+1] = Math.cos(2 * pi * ratio);
             indices[i*3+2] = 0;
         }
+    }
+    getAttributeLocations(){
+        this.glPointers.attributes.aVertexPosition = gl.getAttribLocation(this.shaderProgram, "aVertexPosition");
+        this.gl.enableVertexAttribArray(this.glPointers.attributes.aVertexPosition);
+        
+        this.glPointers.attributes.aVertexColor = gl.getAttribLocation(this.shaderProgram, "aVertexColor");
+        this.gl.enableVertexAttribArray(this.glPointers.attributes.aVertexColor);
 
     }
-    render(){
+    getUniformLocations(){
 
+    }
+    setupUniforms(){
+        const orthoMatrix = mat4.create();
+        mat4.ortho(orthoMatrix, -1, 1, -1, 1, 0.001, 100);  
+    }
+    render(){
+        gl.viewport(0, 0, this.width, this.height);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
     getCanvasDOMNode(){
         return this.canvas;
@@ -107,3 +127,5 @@ class VoroniRenderer{
         this.points = [];
     }
 }
+
+window.VoroniRenderer = VoroniRenderer;
