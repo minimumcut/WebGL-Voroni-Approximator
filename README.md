@@ -14,7 +14,7 @@ Using the included CommonJS Imports
 import VoroniRendere = require('VoroniRender');
 ```
 
-The bundled copy can also be directly copied out of dist/bundle.js and then used in a <script> tag.
+The bundled copy can also be directly copied out of dist/bundle.js and then used in a script tag.
  
 #### Usage
 
