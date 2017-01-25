@@ -13,16 +13,17 @@
 
         canvas.addEventListener("mousedown", getPosition, false);
 
+        let i = 0;
         function getPosition(event)
         {
-        const x = event.x;
-        const y = event.y;
+            let x = event.x;
+            let y = event.y;
 
-        x -= canvas.offsetLeft;
-        y -= canvas.offsetTop;
+            x -= canvas.offsetLeft;
+            y -= canvas.offsetTop;
 
-        voroni.addPoint(x,y);
-        voroni.render();
+            voroni.addPoint(x,y);
+            voroni.render();
         }
         
     </script>

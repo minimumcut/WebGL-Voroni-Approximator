@@ -180,13 +180,6 @@ class VoroniRenderer{
             this.render();
         }
     }
-    
-    /**
-     * Sets the VertexColor uniform to a random value
-     */
-    _randomizeColor(){
-        this.gl.uniform4f(this.glPointers.uniforms.vertexColor, Math.random(), Math.random(), Math.random(), 1.0);
-    }
     render(){
         if(this.debug){
             this._bindDataToBuffers();
@@ -214,7 +207,9 @@ class VoroniRenderer{
                 modelViewMatrix
             );
 
-            this._randomizeColor();
+            console.log(point);
+
+            this.gl.uniform4f(this.glPointers.uniforms.vertexColor, point.r, point.g, point.b, 1.0);
             this.gl.drawArrays(this.gl.TRIANGLE_FAN, 0, this.coneResolution+2);
         });
     }
@@ -235,8 +230,8 @@ class VoroniRenderer{
         this.canvas.width = width;
         this.canvas.height = height;
     }
-    addPoint(x, y){
-        this.points.push({x, y});
+    addPoint(x, y, r, b, g){
+        this.points.push({x, y, r: r || Math.random(), g: g || Math.random(), b: b || Math.random()});
     }
     clearPoints(){
         this.points = [];

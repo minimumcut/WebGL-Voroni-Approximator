@@ -261,16 +261,6 @@
 	                this.render();
 	            }
 	        }
-
-	        /**
-	         * Sets the VertexColor uniform to a random value
-	         */
-
-	    }, {
-	        key: '_randomizeColor',
-	        value: function _randomizeColor() {
-	            this.gl.uniform4f(this.glPointers.uniforms.vertexColor, Math.random(), Math.random(), Math.random(), 1.0);
-	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
@@ -291,11 +281,11 @@
 	                /* Setup model view matrix for next voroni point */
 	                var modelViewMatrix = _glMatrix.mat4.create();
 	                _glMatrix.mat4.translate(modelViewMatrix, modelViewMatrix, [point.x / _this2.width * 2 - 1, -(point.y / _this2.height * 2 - 1), 0.0]);
-	                console.log('X OGL', point.x / _this2.width * 2 - 1);
-	                console.log('Y OGL', point.y / _this2.height * 2 - 1);
 	                _this2.gl.uniformMatrix4fv(_this2.glPointers.uniforms.modelViewMatrix, false, modelViewMatrix);
 
-	                _this2._randomizeColor();
+	                console.log(point);
+
+	                _this2.gl.uniform4f(_this2.glPointers.uniforms.vertexColor, point.r, point.g, point.b, 1.0);
 	                _this2.gl.drawArrays(_this2.gl.TRIANGLE_FAN, 0, _this2.coneResolution + 2);
 	            });
 	        }
@@ -324,8 +314,8 @@
 	        }
 	    }, {
 	        key: 'addPoint',
-	        value: function addPoint(x, y) {
-	            this.points.push({ x: x, y: y });
+	        value: function addPoint(x, y, r, b, g) {
+	            this.points.push({ x: x, y: y, r: r || Math.random(), g: g || Math.random(), b: b || Math.random() });
 	        }
 	    }, {
 	        key: 'clearPoints',
